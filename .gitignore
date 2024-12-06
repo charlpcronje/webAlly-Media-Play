@@ -1,0 +1,7 @@
+composer.phar
+.env
+/vendor/*
+!/vendor/autoload.php
+.history
+.vscode
+node_modulesgoit

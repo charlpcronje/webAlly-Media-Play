@@ -1,0 +1,27 @@
+# File: public/.htaccess
+
+# Enable URL rewriting
+RewriteEngine On
+
+# Redirect tracking pixel requests to tracking_pixel controller
+RewriteRule ^tracking_pixel\.(gif|png)$ /tracking_pixel.$1 [L,QSA]
+
+# Redirect media file requests to MediaController proxy
+RewriteCond %{REQUEST_URI} \.(mp3|mp4|png|jpg|jpeg|gif|webp|avi|wav)$ [NC]
+RewriteRule ^media/(.*)$ /media/$1 [L,QSA]
+
+# Redirect all other requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.php [QSA,L]
+
+# Increase upload size limits
+# php_value upload_max_filesize 1024M
+# php_value post_max_size 1024M
+
+# CORS configuration for Notion embedding
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "https://www.notion.so"
+    Header set Access-Control-Allow-Methods "GET, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>

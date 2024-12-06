@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Page with Image Tracking</title>
+</head>
+<body>
+    <h1>Welcome to the Sample Page</h1>
+    <img src="https://yourdomain.com/media/image.png?media_id=124&page_id=456" data-media-id="124" data-page-id="456" alt="Sample Image" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img[data-media-id][data-page-id]');
+            const options = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5
+            };
+
+            const callback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const mediaId = img.dataset.mediaId;
+                        const pageId = img.dataset.pageId;
+
+                        fetch('/admin/media/log', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                media_id: mediaId,
+                                page_id: pageId,
+                                action: 'view',
+                                current_time: 0
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                console.error('Failed to log image view:', data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error logging image view:', error);
+                        });
+
+                        observer.unobserve(img); // Stop observing after first view
+                    }
+                });
+            };
+
+            const observer = new IntersectionObserver(callback, options);
+            images.forEach(img => observer.observe(img));
+        });
+    </script>
+</body>
+</html>
